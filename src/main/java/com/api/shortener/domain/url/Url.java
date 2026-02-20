@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "url")
@@ -22,7 +22,7 @@ public class Url {
 
     private String originalUrl;
 
-    private Date valid;
+    private LocalDateTime valid;
 
 
 }

@@ -1,0 +1,1 @@
+ALTER TABLE url RENAME COLUMN url_original TO original_url;
