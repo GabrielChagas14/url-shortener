@@ -153,6 +153,60 @@ CREATE TABLE url (
 
 ---
 
+## 🧪 Testes Automatizados
+
+O projeto conta com testes automatizados que rodam **sem precisar de PostgreSQL** — utilizam um banco H2 em memória.
+
+### Executar localmente
+
+```bash
+./mvnw test
+```
+
+### Tipos de teste
+
+#### Testes Unitários — `UrlServiceTest`
+
+Testam a lógica de negócio do `UrlService` em isolamento, com dependências mockadas pelo **Mockito**:
+
+| Teste | O que valida |
+|---|---|
+| `createUrl_novaUrl_deveSalvarERetornarDTO` | Nova URL é salva e retorna DTO com `shortUrl` válida |
+| `createUrl_urlExistente_naoDeveSalvarNovamente` | URL duplicada reutiliza o mesmo código (idempotência) |
+| `findByShortCode_codigoValido_deveRetornarUrl` | Shortcode válido retorna a entidade correta |
+| `findByShortCode_urlExpirada_deveLancar410` | URL com prazo vencido lança `410 Gone` |
+| `findByShortCode_codigoInexistente_deveLancar404` | Shortcode inexistente lança `404 Not Found` |
+
+#### Testes de Integração — `ShortenerApplicationTests`
+
+Sobem o contexto completo do Spring Boot e testam os endpoints HTTP com **MockMvc**:
+
+| Teste | O que valida |
+|---|---|
+| `contextLoads` | Contexto da aplicação inicializa sem erros |
+| `createUrl_deveRetornar200ComShortUrl` | `POST /api/url/create` retorna `200` com `shortUrl` |
+| `createUrl_mesmaUrl_deveRetornarMesmaShortUrl` | Mesma URL enviada duas vezes retorna a mesma `shortUrl` |
+| `redirect_codigoValido_deveRedirecionar` | `GET /{shortCode}` retorna `302` para a URL original |
+| `redirect_codigoInexistente_deveRetornar404` | Shortcode inválido retorna `404` |
+
+---
+
+## ⚙️ CI — GitHub Actions
+
+O repositório possui um pipeline de **Integração Contínua** que executa todos os testes automaticamente em:
+
+- Qualquer **push** para a branch `main`
+- Qualquer **Pull Request** aberto para a branch `main`
+
+O pipeline (`.github/workflows/ci.yml`) realiza:
+1. Checkout do código
+2. Setup do Java 21 (Temurin) com cache do Maven
+3. Execução dos testes: `./mvnw test`
+
+> Nenhum banco de dados externo é necessário — os testes usam H2 in-memory.
+
+---
+
 ## 🌐 CORS
 
 A API permite requisições de **qualquer origem** (`*`), com todos os métodos e headers. Ideal para desenvolvimento — ajuste para valores específicos em produção.
